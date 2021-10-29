@@ -1,0 +1,20 @@
+{
+    "ontologyId": "rdf.ttl",
+    "defaultPrefix": "rdf",
+    "displayName": "Resource Description Framework",
+    "description": "This is the RDF Schema for the RDF vocabulary terms in the RDF Namespace, defined in RDF 1.1 Concepts.",
+    "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "sourceUri": "https://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "url": "https://www.w3.org/TR/rdf11-concepts/"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "url": "https://lov.linkeddata.es/dataset/lov/vocabs/rdf"
+        }
+    ]
+}

@@ -1,4 +1,5 @@
-import { IKnownOntologyInfo, IKnownOntologyLink, OnlineKnownOntologiesRepository } from './IKnownOntologiesRepository';
+import { IKnownOntologyInfo, IKnownOntologyLink } from './IKnownOntologiesRepository';
+import { OnlineKnownOntologiesRepository } from "./OnlineKnownOntologiesRepository";
 
 function createLinks(links: {
     homepage: string | undefined,
