@@ -1,0 +1,20 @@
+{
+    "ontologyId": "rdfs.ttl",
+    "defaultPrefix": "rdfs",
+    "displayName": "RDF Schema",
+    "description": "RDF Schema provides a data-modelling vocabulary for RDF data. RDF Schema is an extension of the basic RDF vocabulary.",
+    "namespace": "http://www.w3.org/2000/01/rdf-schema#",
+    "sourceUri": "https://www.w3.org/2000/01/rdf-schema#",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "uri": "https://www.w3.org/TR/rdf-schema/"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/rdfs"
+        }
+    ]
+}

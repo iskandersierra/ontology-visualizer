@@ -1,5 +1,5 @@
 import { IKnownOntologyInfo, IKnownOntologyLink } from './IKnownOntologiesRepository';
-import { OnlineKnownOntologiesRepository } from "./OnlineKnownOntologiesRepository";
+import { IOnlineKnownOntologiesRepositoryHost, OnlineKnownOntologiesRepository } from "./OnlineKnownOntologiesRepository";
 
 function createLinks(links: {
     homepage: string | undefined,
@@ -192,10 +192,14 @@ const ontologies: readonly IKnownOntologyInfo[] = [
     },
 ];
 
-export default new OnlineKnownOntologiesRepository(
-    ontologies,
-    async uri => {
+class OnlineKnownOntologiesRepositoryHost implements IOnlineKnownOntologiesRepositoryHost {
+    async fetchContent(uri: string): Promise<string | undefined> {
         const axios = (await import('axios')).default;
         const response = await axios.get<string>(uri);
         return await response.data;
-    });
+    }
+}
+
+export default new OnlineKnownOntologiesRepository(
+    ontologies,
+    new OnlineKnownOntologiesRepositoryHost());

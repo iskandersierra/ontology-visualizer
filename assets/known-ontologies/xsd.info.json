@@ -1,0 +1,25 @@
+{
+    "ontologyId": "XMLSchema.xsd",
+    "defaultPrefix": "xsd",
+    "displayName": "XML Schema",
+    "description": "The XML Schema representation",
+    "namespace": "http://www.w3.org/2001/XMLSchema#",
+    "sourceUri": "https://www.w3.org/2009/XMLSchema/XMLSchema.xsd",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "uri": "https://www.w3.org/TR/xmlschema-2/"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/xsd"
+        },
+        {
+            "key": "xsd-datatypes",
+            "displayName": "XSD Datatypes",
+            "uri": "https://www.w3.org/2011/rdf-wg/wiki/XSD_Datatypes"
+        }
+    ]
+}

@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs/promises';
 
 import { IKnownOntologiesRepository, IKnownOntologyInfo, IKnownOntologyLink } from '../business/IKnownOntologiesRepository';
+import { ILocalKnownOntologiesRepositoryHost, LocalKnownOntologiesRepository } from '../business/LocalKnownOntologiesRepository';
 import { IOpenKnownOntologiesCommandsHost, OpenKnownOntologiesCommands } from '../business/OpenKnownOntologiesCommands';
 
 const OPEN_KNOWN_ONTOLOGY_COMMAND_KEY = 'ontology-visualizer.openKnownOntology';
@@ -67,6 +70,8 @@ class OpenKnownOntologiesCommandsHost implements IOpenKnownOntologiesCommandsHos
 			matchOnDetail: true,
 			placeHolder: title,
 		});
+
+		console.log(`Picked ontology: ${pick?.info?.ontologyId}`);		
 	
 		return pick?.info;
 	}
@@ -89,24 +94,71 @@ class OpenKnownOntologiesCommandsHost implements IOpenKnownOntologiesCommandsHos
 			matchOnDetail: true,
 			placeHolder: 'Select an ontology link to open',
 		});
+
+		console.log(`Picked ontology link: ${pick?.info?.key}`);
 	
 		return pick?.info;
 	}
 	
 	public async openKnownOntologyDocument(ontologyId: string): Promise<void> {
+		console.log(`Open ontology ${ontologyId}`);
+		
 		const uri = vscode.Uri.parse(`${KNOWN_ONTOLOGY_SCHEME}:${ontologyId}`);
 		const document = await vscode.workspace.openTextDocument(uri);
 		await vscode.window.showTextDocument(document);
 	}
 	
 	public async openUriInBrowser(uri: string): Promise<void> {
+		console.log(`Open URI ${uri} in browser`);
+		
 		await vscode.env.openExternal(vscode.Uri.parse(uri));
 	}
 }
 
+class LocalKnownOntologiesRepositoryHost implements ILocalKnownOntologiesRepositoryHost {
+	constructor(
+		private context: vscode.ExtensionContext,
+	) {
+		if (!context) {
+			throw new Error('context is undefined');
+		}
+	}
+
+	public async readFileContent(fileName: string): Promise<string | undefined> {
+		try {
+			const filePath = path.join(
+				this.context.extensionPath,
+				'assets/known-ontologies',
+				fileName);
+	
+			const content = await fs.readFile(filePath, 'utf8');
+	
+			return content;
+		} catch (error) {
+			return undefined;
+		}
+	}
+
+	public async listFileNames(): Promise<readonly string[]> {
+		const directory = path.join(
+			this.context.extensionPath,
+			'assets/known-ontologies');
+
+		const fileNames = await fs.readdir(directory);
+
+		return fileNames;
+	}
+}
+
 export default function (context: vscode.ExtensionContext) {
-	const getRepository = async () =>
-		(await import('../business/default-known-ontologies-repository')).default;
+	const repositoryHost = new LocalKnownOntologiesRepositoryHost(context);
+
+	const repository = new LocalKnownOntologiesRepository(repositoryHost);
+	
+	const getRepository = async () => repository;
+
+	// const getRepository = async () =>
+	// 	(await import('../business/online-known-ontologies-repository')).default;
 
 	const host = new OpenKnownOntologiesCommandsHost(getRepository);
 

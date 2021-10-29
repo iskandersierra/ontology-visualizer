@@ -1,19 +1,20 @@
 import { IKnownOntologiesRepository, IKnownOntologyInfo } from "./IKnownOntologiesRepository";
 
-export type FetchContent = (uri: string) => Promise<string | undefined>;
+export interface IOnlineKnownOntologiesRepositoryHost {
+    fetchContent(uri: string): Promise<string | undefined>;
+}
 
-export class OnlineKnownOntologiesRepository
-    implements IKnownOntologiesRepository {
+export class OnlineKnownOntologiesRepository implements IKnownOntologiesRepository {
     constructor(
         private ontologies: readonly IKnownOntologyInfo[],
-        private fetchContent: FetchContent
+        private host: IOnlineKnownOntologiesRepositoryHost
     ) {
         if (!ontologies) {
             throw new Error('ontologies must be defined');
         }
 
-        if (!fetchContent) {
-            throw new Error('fetchContent must be defined');
+        if (!host) {
+            throw new Error('host must be defined');
         }
     }
 
@@ -28,6 +29,6 @@ export class OnlineKnownOntologiesRepository
             return undefined;
         }
 
-        return await this.fetchContent(ontology.sourceUri);
+        return await this.host.fetchContent(ontology.sourceUri);
     }
 }

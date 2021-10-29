@@ -1,0 +1,20 @@
+{
+    "ontologyId": "dctype.ttl",
+    "defaultPrefix": "dctype",
+    "displayName": "DCMI Type Vocabulary",
+    "description": "The DCMI Type Vocabulary provides a general, cross-domain list of approved terms that may be used as values for the Resource Type element to identify the genre of a resource.",
+    "namespace": "http://purl.org/dc/dcmitype/",
+    "sourceUri": "https://www.dublincore.org/2012/06/14/dctype.ttl",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "uri": "http://dublincore.org/documents/dcmi-type-vocabulary"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/dctype"
+        }
+    ]
+}

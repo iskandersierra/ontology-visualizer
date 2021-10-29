@@ -1,0 +1,20 @@
+{
+    "ontologyId": "skos.rdf",
+    "defaultPrefix": "skos",
+    "displayName": "SKOS Simple Knowledge Organization System",
+    "description": "The Simple Knowledge Organization System (SKOS) is a common data model for sharing and linking knowledge organization systems via the Semantic Web.",
+    "namespace": "http://www.w3.org/2004/02/skos/core#",
+    "sourceUri": "https://www.w3.org/2009/08/skos-reference/skos.rdf",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "uri": "https://www.w3.org/2009/08/skos-reference/skos.html"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/skos"
+        }
+    ]
+}

@@ -9,12 +9,12 @@
         {
             "key": "homepage",
             "displayName": "Homepage",
-            "url": "https://www.w3.org/TR/rdf11-concepts/"
+            "uri": "https://www.w3.org/TR/rdf11-concepts/"
         },
         {
             "key": "lov",
             "displayName": "Linked Open Vocabulary",
-            "url": "https://lov.linkeddata.es/dataset/lov/vocabs/rdf"
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/rdf"
         }
     ]
 }

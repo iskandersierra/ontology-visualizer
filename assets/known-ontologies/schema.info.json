@@ -1,0 +1,20 @@
+{
+    "ontologyId": "schema.ttl",
+    "defaultPrefix": "schema",
+    "displayName": "Schema.org",
+    "description": "Search engines including Bing, Google, Yahoo! and Yandex rely on schema.org markup to improve the display of search results, making it easier for people to find the right web pages.",
+    "namespace": "http://schema.org/",
+    "sourceUri": "https://raw.githubusercontent.com/ontola/ontologies/master/ontologies/schema/ontology.ttl",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "uri": "https://schema.org/docs/about.html"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/schema"
+        }
+    ]
+}

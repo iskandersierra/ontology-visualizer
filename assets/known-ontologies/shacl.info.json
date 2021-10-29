@@ -1,0 +1,20 @@
+{
+    "ontologyId": "shacl.ttl",
+    "defaultPrefix": "sh",
+    "displayName": "W3C Shapes Constraint Language (SHACL) Vocabulary",
+    "description": "This vocabulary defines terms used in SHACL, the W3C Shapes Constraint Language.",
+    "namespace": "http://www.w3.org/ns/shacl#",
+    "sourceUri": "https://www.w3.org/ns/shacl.ttl",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "uri": "https://www.w3.org/TR/shacl/"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/sh"
+        }
+    ]
+}

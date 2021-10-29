@@ -1,0 +1,20 @@
+{
+    "ontologyId": "dcterms.ttl",
+    "defaultPrefix": "dcterms",
+    "displayName": "DCMI Metadata Terms",
+    "description": "An up-to-date specification of all metadata terms maintained by the Dublin Core Metadata Initiative, including properties, vocabulary encoding schemes, syntax encoding schemes, and classes.",
+    "namespace": "http://purl.org/dc/terms/",
+    "sourceUri": "https://www.dublincore.org/2012/06/14/dcterms.ttl",
+    "links": [
+        {
+            "key": "homepage",
+            "displayName": "Homepage",
+            "uri": "http://dublincore.org/documents/dcmi-terms"
+        },
+        {
+            "key": "lov",
+            "displayName": "Linked Open Vocabulary",
+            "uri": "https://lov.linkeddata.es/dataset/lov/vocabs/dcterms"
+        }
+    ]
+}
