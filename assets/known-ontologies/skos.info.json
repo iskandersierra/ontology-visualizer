@@ -1,6 +1,8 @@
 {
-    "ontologyId": "skos.rdf",
+    "ontologyId": "skos",
+    "ontologyUri": "skos.rdf",
     "defaultPrefix": "skos",
+    "format": "rdf",
     "displayName": "SKOS Simple Knowledge Organization System",
     "description": "The Simple Knowledge Organization System (SKOS) is a common data model for sharing and linking knowledge organization systems via the Semantic Web.",
     "namespace": "http://www.w3.org/2004/02/skos/core#",

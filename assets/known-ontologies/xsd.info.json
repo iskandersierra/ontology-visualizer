@@ -1,6 +1,8 @@
 {
-    "ontologyId": "XMLSchema.xsd",
+    "ontologyId": "xsd",
+    "ontologyUri": "XMLSchema.xsd",
     "defaultPrefix": "xsd",
+    "format": "xml",
     "displayName": "XML Schema",
     "description": "The XML Schema representation",
     "namespace": "http://www.w3.org/2001/XMLSchema#",

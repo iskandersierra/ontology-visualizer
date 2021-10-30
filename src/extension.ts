@@ -1,9 +1,14 @@
 import * as vscode from 'vscode';
 
-import registerCommands from './commands';
+import { 
+	activate as activateExtension,
+	deactivate as deactivateExtension
+} from './commands';
 
-export function activate(context: vscode.ExtensionContext) {
-	registerCommands(context);
+export async function activate(context: vscode.ExtensionContext) {
+	await activateExtension(context);
 }
 
-export function deactivate() { }
+export async function deactivate() {
+	await deactivateExtension();
+}

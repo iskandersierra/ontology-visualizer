@@ -1,6 +1,8 @@
 {
-    "ontologyId": "prov.ttl",
+    "ontologyId": "prov",
+    "ontologyUri": "prov.ttl",
     "defaultPrefix": "prov",
+    "format": "turtle",
     "displayName": "W3C PROVenance Interchange",
     "description": "The namespace name http://www.w3.org/ns/prov# is intended for use with the PROV family of documents that support the interchange of provenance on the web.",
     "namespace": "http://www.w3.org/ns/prov#",

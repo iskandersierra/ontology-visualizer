@@ -1,6 +1,8 @@
 {
-    "ontologyId": "rdfs.ttl",
+    "ontologyId": "rdfs",
+    "ontologyUri": "rdfs.ttl",
     "defaultPrefix": "rdfs",
+    "format": "turtle",
     "displayName": "RDF Schema",
     "description": "RDF Schema provides a data-modelling vocabulary for RDF data. RDF Schema is an extension of the basic RDF vocabulary.",
     "namespace": "http://www.w3.org/2000/01/rdf-schema#",

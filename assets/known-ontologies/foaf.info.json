@@ -1,6 +1,8 @@
 {
-    "ontologyId": "foaf.rdf",
+    "ontologyId": "foaf",
+    "ontologyUri": "foaf.rdf",
     "defaultPrefix": "foaf",
+    "format": "rdf",
     "displayName": "Friend of a Friend vocabulary",
     "description": "FOAF is a project devoted to linking people and information using the Web. Regardless of whether information is in people's heads, in physical or digital documents, or in the form of factual data, it can be linked.",
     "namespace": "http://xmlns.com/foaf/0.1/",

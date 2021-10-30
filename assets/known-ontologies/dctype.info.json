@@ -1,6 +1,8 @@
 {
-    "ontologyId": "dctype.ttl",
+    "ontologyId": "dctype",
+    "ontologyUri": "dctype.ttl",
     "defaultPrefix": "dctype",
+    "format": "turtle",
     "displayName": "DCMI Type Vocabulary",
     "description": "The DCMI Type Vocabulary provides a general, cross-domain list of approved terms that may be used as values for the Resource Type element to identify the genre of a resource.",
     "namespace": "http://purl.org/dc/dcmitype/",

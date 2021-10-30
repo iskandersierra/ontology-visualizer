@@ -1,6 +1,8 @@
 {
-    "ontologyId": "shacl.ttl",
+    "ontologyId": "shacl",
+    "ontologyUri": "shacl.ttl",
     "defaultPrefix": "sh",
+    "format": "turtle",
     "displayName": "W3C Shapes Constraint Language (SHACL) Vocabulary",
     "description": "This vocabulary defines terms used in SHACL, the W3C Shapes Constraint Language.",
     "namespace": "http://www.w3.org/ns/shacl#",

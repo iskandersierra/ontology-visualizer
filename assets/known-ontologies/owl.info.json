@@ -1,6 +1,8 @@
 {
-    "ontologyId": "owl.ttl",
+    "ontologyId": "owl",
+    "ontologyUri": "owl.ttl",
     "defaultPrefix": "owl",
+    "format": "turtle",
     "displayName": "The OWL 2 Schema vocabulary (OWL 2)",
     "description": "RDF Schema provides a data-modelling vocabulary for RDF data. RDF Schema is an extension of the basic RDF vocabulary.",
     "namespace": "http://www.w3.org/2002/07/owl#",

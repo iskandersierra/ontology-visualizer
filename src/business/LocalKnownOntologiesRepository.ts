@@ -1,4 +1,4 @@
-import { IKnownOntologiesRepository, IKnownOntologyInfo } from "./IKnownOntologiesRepository";
+import { IKnownOntologiesRepository, IKnownOntologyContent, IKnownOntologyInfo } from "./IKnownOntologiesRepository";
 
 export interface ILocalKnownOntologiesRepositoryHost {
     readFileContent(fileName: string): Promise<string | undefined>;
@@ -26,8 +26,31 @@ export class LocalKnownOntologiesRepository implements IKnownOntologiesRepositor
         return ontologies;
     }
 
-    public async getOntologyContent(ontologyId: string): Promise<string | undefined> {
-        const content = await this.host.readFileContent(ontologyId);
-        return content;
+    public async getKnownOntology(ontologyId: string): Promise<IKnownOntologyInfo | undefined> {
+        const fileName = ontologyId + '.info.json';
+        const content = await this.host.readFileContent(fileName);
+        
+        if (!content) {
+            return undefined;
+        }
+        
+        const ontology = JSON.parse(content!) as IKnownOntologyInfo;
+        return ontology;
+    }
+
+    public async getOntologyContent(ontologyId: string): Promise<IKnownOntologyContent | undefined> {
+        const info = await this.getKnownOntology(ontologyId);
+
+        if (!info) {
+            return undefined;
+        }
+
+        const content = await this.host.readFileContent(info.ontologyUri);
+
+        if (!content) {
+            return undefined;
+        }
+
+        return { ...info, content };
     }
 }

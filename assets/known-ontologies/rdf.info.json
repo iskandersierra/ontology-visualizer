@@ -1,6 +1,8 @@
 {
-    "ontologyId": "rdf.ttl",
+    "ontologyId": "rdf",
+    "ontologyUri": "rdf.ttl",
     "defaultPrefix": "rdf",
+    "format": "turtle",
     "displayName": "Resource Description Framework",
     "description": "This is the RDF Schema for the RDF vocabulary terms in the RDF Namespace, defined in RDF 1.1 Concepts.",
     "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",

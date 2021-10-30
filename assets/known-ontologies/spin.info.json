@@ -1,6 +1,8 @@
 {
-    "ontologyId": "spin.rdf",
+    "ontologyId": "spin",
+    "ontologyUri": "spin.rdf",
     "defaultPrefix": "sp",
+    "format": "rdf",
     "displayName": "SPIN Inferencing Vocabulary",
     "description": "An RDF Schema that can be used to attach constraints and rules to RDFS classes, and to encapsulate reusable SPARQL queries into functions and templates",
     "namespace": "http://spinrdf.org/spin#",

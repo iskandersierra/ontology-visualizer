@@ -1,23 +1,32 @@
+import { OntologyFileFormat } from "./OntologyFileFormat";
+
 export interface IKnownOntologyInfo {
-    ontologyId: string;
-    defaultPrefix: string;
-    displayName: string;
-    description: string;
-    namespace: string;
-    sourceUri: string;
-    links: readonly IKnownOntologyLink[];
+    readonly ontologyId: string;
+    readonly ontologyUri: string;
+    readonly defaultPrefix: string;
+    readonly format: OntologyFileFormat;
+    readonly displayName: string;
+    readonly description: string;
+    readonly namespace: string;
+    readonly sourceUri: string;
+    readonly links: readonly IKnownOntologyLink[];
 }
 
 export interface IKnownOntologyLink {
-    key: string;
-    displayName: string;
-    uri: string;
+    readonly key: string;
+    readonly displayName: string;
+    readonly uri: string;
+}
+
+export interface IKnownOntologyContent extends IKnownOntologyInfo {
+    readonly content: string;
 }
 
 export interface IKnownOntologiesRepository {
     getKnownOntologies(): Promise<readonly IKnownOntologyInfo[]>;
+    getKnownOntology(ontologyId: string): Promise<IKnownOntologyInfo | undefined>;
 
-    getOntologyContent(ontologyId: string): Promise<string | undefined>;
+    getOntologyContent(ontologyId: string): Promise<IKnownOntologyContent | undefined>;
 }
 
 

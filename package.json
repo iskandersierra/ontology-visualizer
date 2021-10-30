@@ -12,18 +12,28 @@
 	],
 	"activationEvents": [
 		"onCommand:ontology-visualizer.openKnownOntology",
-		"onCommand:ontology-visualizer.openKnownOntologyLink"
+		"onCommand:ontology-visualizer.openKnownOntologyAs",
+		"onCommand:ontology-visualizer.openKnownOntologyLink",
+		"onCommand:ontology-visualizer.ontologySummary"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "ontology-visualizer.openKnownOntology",
-				"title": "Known Ontology: Open"
+				"title": "Known Ontology: Open ..."
+			},
+			{
+				"command": "ontology-visualizer.openKnownOntologyAs",
+				"title": "Known Ontology: Open As ..."
 			},
 			{
 				"command": "ontology-visualizer.openKnownOntologyLink",
-				"title": "Known Ontology: Open Link"
+				"title": "Known Ontology: Open Link ..."
+			},
+			{
+				"command": "ontology-visualizer.ontologySummary",
+				"title": "Ontology: Open Summary View"
 			}
 		]
 	},
@@ -38,6 +48,7 @@
 	"devDependencies": {
 		"@types/glob": "^7.1.4",
 		"@types/mocha": "^9.0.0",
+		"@types/n3": "^1.10.3",
 		"@types/node": "14.x",
 		"@types/vscode": "^1.61.0",
 		"@typescript-eslint/eslint-plugin": "^4.31.1",
@@ -50,6 +61,9 @@
 	},
 	"dependencies": {
 		"axios": "^0.24.0",
-		"open": "^8.4.0"
+		"n3": "^1.11.1",
+		"open": "^8.4.0",
+		"query-string": "^7.0.1",
+		"rdflib": "^2.2.9"
 	}
 }

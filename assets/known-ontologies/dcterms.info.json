@@ -1,6 +1,8 @@
 {
-    "ontologyId": "dcterms.ttl",
+    "ontologyId": "dcterms",
+    "ontologyUri": "dcterms.ttl",
     "defaultPrefix": "dcterms",
+    "format": "turtle",
     "displayName": "DCMI Metadata Terms",
     "description": "An up-to-date specification of all metadata terms maintained by the Dublin Core Metadata Initiative, including properties, vocabulary encoding schemes, syntax encoding schemes, and classes.",
     "namespace": "http://purl.org/dc/terms/",

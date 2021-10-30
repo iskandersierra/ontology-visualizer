@@ -5,28 +5,78 @@ import * as fs from 'fs/promises';
 import { IKnownOntologiesRepository, IKnownOntologyInfo, IKnownOntologyLink } from '../business/IKnownOntologiesRepository';
 import { ILocalKnownOntologiesRepositoryHost, LocalKnownOntologiesRepository } from '../business/LocalKnownOntologiesRepository';
 import { IOpenKnownOntologiesCommandsHost, OpenKnownOntologiesCommands } from '../business/OpenKnownOntologiesCommands';
+import { findOntologyFormat, IOntologyFileFormatInfo, IOntologyFormatConverter, OntologyFileFormat, ONTOLOGY_FORMATS } from '../business/OntologyFileFormat';
+import { OntologyFormatConverter } from '../business/OntologyFormatConverter';
+import { N3Reader, N3Writer } from '../business/IN3Serialization';
+import { ILogger } from '../business/ILogger';
 
 const OPEN_KNOWN_ONTOLOGY_COMMAND_KEY = 'ontology-visualizer.openKnownOntology';
+const OPEN_KNOWN_ONTOLOGY_AS_COMMAND_KEY = 'ontology-visualizer.openKnownOntologyAs';
 const OPEN_KNOWN_ONTOLOGY_LINK_COMMAND_KEY = 'ontology-visualizer.openKnownOntologyLink';
 
 const KNOWN_ONTOLOGY_SCHEME = 'known-ontology';
+const ORIGINAL_FORMAT = 'original';
 
 class KnownOntologyTextDocumentContentProvider implements vscode.TextDocumentContentProvider {
 	onDidChangeEmiter = new vscode.EventEmitter<vscode.Uri>();
 	onDidChange = this.onDidChangeEmiter.event;
 
-	constructor(private getRepository: () => Promise<IKnownOntologiesRepository>) {
-	}
+	constructor(
+		private repository: IKnownOntologiesRepository,
+		private ontologyFormatConverter: IOntologyFormatConverter,
+		private logger: ILogger) {
 
-	async provideTextDocumentContent(uri: vscode.Uri) {
-		const ontologyId = uri.path;
-		const repository = await this.getRepository();
-		const content = await repository.getOntologyContent(ontologyId);
-		if (content) {
-			return content;
+		if (!repository) {
+			throw new Error('repository is undefined');
 		}
 
-		return `Ontology ${uri.path} not found!`;
+		if (!ontologyFormatConverter) {
+			throw new Error('ontologyFormatConverter is undefined');
+		}
+	}
+
+	public async provideTextDocumentContent(uri: vscode.Uri) {
+		const { ontologyId, format: targetFormat } = await this.getUriData(uri);
+
+		this.logger.log(`provideTextDocumentContent: ` + uri.toString());
+		
+		try {
+			const data = await this.repository.getOntologyContent(ontologyId);
+			
+			if (!data) {
+				vscode.window.showErrorMessage(`Ontology ${uri.path} not found!`);
+				return undefined;
+			}
+
+			if (targetFormat === ORIGINAL_FORMAT) {
+				return data.content;
+			}
+
+			const converted = await this.ontologyFormatConverter
+				.convertOntology(
+					data.content,
+					data.namespace,
+					data.format,
+					targetFormat);
+
+			return converted;
+		} catch (error: any) {
+			vscode.window.showErrorMessage(error.message ?? 'Unknown error: ' + error);
+			console.error(error);
+			return undefined;
+		}
+	}
+
+	private async getUriData(uri: vscode.Uri) {
+		const path = uri.path;
+		const qs = await import('query-string');
+		const query = qs.parse(uri.query);
+		
+		return {
+			path,
+			ontologyId: query.id as string,
+			format: query.format as ('original' | OntologyFileFormat)
+		};
 	}
 }
 
@@ -52,15 +102,41 @@ function toQuickOntologyLinkItem(info: IKnownOntologyLink): QuickItemOf<IKnownOn
 	};
 }
 
+function toQuickOntologyFormatItem(info: IOntologyFileFormatInfo): QuickItemOf<IOntologyFileFormatInfo> {
+	return {
+		label: info.formatId,
+		description: info.displayName,
+		detail: info.homepage,
+		info,
+	};
+}
+
 class OpenKnownOntologiesCommandsHost implements IOpenKnownOntologiesCommandsHost {
 	constructor(
-		private getRepository: () => Promise<IKnownOntologiesRepository>) {
+		private repository: IKnownOntologiesRepository,
+		private logger: ILogger) {
 	}
 	
-	public async pickOneOntology(title: string): Promise<IKnownOntologyInfo | undefined> {
-		const repository = await this.getRepository();
-
-		const ontologies = await repository.getKnownOntologies();
+	public async pickOneOntologyFormat()
+		: Promise<IOntologyFileFormatInfo | undefined> {
+			const quickItems = ONTOLOGY_FORMATS.map(toQuickOntologyFormatItem);
+		
+			const pick = await vscode.window.showQuickPick(quickItems, {
+				canPickMany: false,
+				matchOnDescription: true,
+				matchOnDetail: true,
+				placeHolder: 'Select an ontology format',
+			});
+	
+			this.logger.log(`Picked ontology format: ${pick?.info?.formatId}`);
+		
+			return pick?.info;
+		}
+	
+	public async pickOneOntology(
+		title: string)
+		: Promise<IKnownOntologyInfo | undefined> {
+		const ontologies = await this.repository.getKnownOntologies();
 
 		const quickItems = ontologies.map(toQuickOntologyItem);
 
@@ -71,12 +147,14 @@ class OpenKnownOntologiesCommandsHost implements IOpenKnownOntologiesCommandsHos
 			placeHolder: title,
 		});
 
-		console.log(`Picked ontology: ${pick?.info?.ontologyId}`);		
+		this.logger.log(`Picked ontology: ${pick?.info?.ontologyId}`);		
 	
 		return pick?.info;
 	}
 	
-	public async pickOneOntologyLink(ontology: IKnownOntologyInfo): Promise<IKnownOntologyLink | undefined> {
+	public async pickOneOntologyLink(
+		ontology: IKnownOntologyInfo)
+		: Promise<IKnownOntologyLink | undefined> {
 		const links: IKnownOntologyLink[] = [
 			...ontology.links,
 			{
@@ -95,21 +173,62 @@ class OpenKnownOntologiesCommandsHost implements IOpenKnownOntologiesCommandsHos
 			placeHolder: 'Select an ontology link to open',
 		});
 
-		console.log(`Picked ontology link: ${pick?.info?.key}`);
+		this.logger.log(`Picked ontology link: ${pick?.info?.key}`);
 	
 		return pick?.info;
 	}
 	
-	public async openKnownOntologyDocument(ontologyId: string): Promise<void> {
-		console.log(`Open ontology ${ontologyId}`);
-		
-		const uri = vscode.Uri.parse(`${KNOWN_ONTOLOGY_SCHEME}:${ontologyId}`);
+	public async openKnownOntologyDocument(
+		ontologyId: string,
+		format?: OntologyFileFormat)
+		: Promise<void> {
+
+		const info = await this.repository.getKnownOntology(ontologyId);
+
+		if (!info) {
+			vscode.window.showErrorMessage(`Known Ontology ${ontologyId} not found!`);
+			return;
+		}
+
+		let ontologyUri = info.ontologyUri;
+
+		if (format) {
+			if (format === info.format) {
+				format = undefined;
+			}
+			else {
+				const targetFormat = findOntologyFormat(format);
+				if (targetFormat) {
+					const dotPos = ontologyUri.indexOf('.');
+					ontologyUri = ontologyUri.substring(0, dotPos) + targetFormat.extensions[0];
+				}
+			}
+		}
+
+		const qs = await import('query-string');
+
+		const query = qs.stringify({
+			id: ontologyId,
+			format: format ?? ORIGINAL_FORMAT,
+		});
+
+		const uri = vscode.Uri.from({
+			scheme: KNOWN_ONTOLOGY_SCHEME,
+			path: ontologyUri,
+			query,
+		});
+
+		this.logger.log(`Open ontology ${uri.toString()}`);
+
 		const document = await vscode.workspace.openTextDocument(uri);
 		await vscode.window.showTextDocument(document);
 	}
 	
-	public async openUriInBrowser(uri: string): Promise<void> {
-		console.log(`Open URI ${uri} in browser`);
+	public async openUriInBrowser(
+		uri: string)
+		: Promise<void> {
+
+		this.logger.log(`Open URI ${uri} in browser`);
 		
 		await vscode.env.openExternal(vscode.Uri.parse(uri));
 	}
@@ -150,39 +269,36 @@ class LocalKnownOntologiesRepositoryHost implements ILocalKnownOntologiesReposit
 	}
 }
 
-export default function (context: vscode.ExtensionContext) {
+export function activate (context: vscode.ExtensionContext, logger: ILogger) {
+	// Options, Services and Hosts
+
 	const repositoryHost = new LocalKnownOntologiesRepositoryHost(context);
 
 	const repository = new LocalKnownOntologiesRepository(repositoryHost);
+
+	const ontologyConverter = new OntologyFormatConverter(new N3Reader(), new N3Writer());
 	
-	const getRepository = async () => repository;
-
-	// const getRepository = async () =>
-	// 	(await import('../business/online-known-ontologies-repository')).default;
-
-	const host = new OpenKnownOntologiesCommandsHost(getRepository);
+	const host = new OpenKnownOntologiesCommandsHost(repository, logger);
 
 	const commands = new OpenKnownOntologiesCommands(host);
+
+	// Registers
  	
-	console.log('Registering document scheme: ' + KNOWN_ONTOLOGY_SCHEME);
+	logger.log('Registering document scheme: ' + KNOWN_ONTOLOGY_SCHEME);
 
 	context.subscriptions.push(
 		vscode.workspace.registerTextDocumentContentProvider(
 			KNOWN_ONTOLOGY_SCHEME,
-			new KnownOntologyTextDocumentContentProvider(getRepository))
+			new KnownOntologyTextDocumentContentProvider(repository, ontologyConverter, logger))
 	);
 
-	console.log('Registering command: ' + OPEN_KNOWN_ONTOLOGY_COMMAND_KEY);
+	function registerCommand(commandKey: string, command: (...args: any[]) => any) {
+		logger.log('Registering command: ' + commandKey);
 
-	context.subscriptions.push(
-		vscode.commands.registerCommand(
-			OPEN_KNOWN_ONTOLOGY_COMMAND_KEY,
-			async () => await commands.openKnownOntology()));
+		context.subscriptions.push(vscode.commands.registerCommand(commandKey, command));
+	}
 
-	console.log('Registering command: ' + OPEN_KNOWN_ONTOLOGY_LINK_COMMAND_KEY);
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand(
-			OPEN_KNOWN_ONTOLOGY_LINK_COMMAND_KEY,
-			async () => await commands.openKnownOntologyLink()));
+	registerCommand(OPEN_KNOWN_ONTOLOGY_COMMAND_KEY, () => commands.openKnownOntology());
+	registerCommand(OPEN_KNOWN_ONTOLOGY_AS_COMMAND_KEY, () => commands.openKnownOntologyAs());
+	registerCommand(OPEN_KNOWN_ONTOLOGY_LINK_COMMAND_KEY, () => commands.openKnownOntologyLink());
 }
