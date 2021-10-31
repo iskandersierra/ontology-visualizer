@@ -1,4 +1,6 @@
 import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs/promises";
 import { ILogger } from "../business/ILogger";
 
 const OPEN_ONTOLOGY_SUMMARY_COMMAND_KEY = 'ontology-visualizer.ontologySummary';
@@ -22,7 +24,7 @@ class OntologySummaryView {
                     enableScripts: false,
                     retainContextWhenHidden: false,
                     localResourceRoots: [
-                        vscode.Uri.joinPath(this.context.extensionUri, 'assets/summary-view')
+                        vscode.Uri.joinPath(this.context.extensionUri, 'src/summary-app')
                     ]
                 }
             );
@@ -34,17 +36,19 @@ class OntologySummaryView {
                 this.panel = undefined;
             }, null, this.subscriptions);
 
-            const updateView = (editor: vscode.TextEditor | undefined) => {
+            const updateView = async (editor: vscode.TextEditor | undefined) => {
                 const uri = editor?.document?.uri;
                 if (this.panel && uri) {
-                    const message = `<h1>You are looking at ` + uri?.toString() + '</h1>\n<pre>' + editor.document.getText() + '</pre>';
-                    this.logger.log(message);
-                    this.panel!.webview.html = message;
+                    const indexHtmlPath = path.join(this.context.extensionPath, 'src/summary-app/index.html');
+                    const indexHtmlContent = await fs.readFile(indexHtmlPath, 'utf8')
+                    // const message = `<h1>You are looking at ` + uri?.toString() + '</h1>\n<pre>' + editor.document.getText() + '</pre>';
+                    // this.logger.log(message);
+                    this.panel!.webview.html = indexHtmlContent;
                 }
             };
 
             this.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateView));
-            updateView(vscode.window.activeTextEditor);
+            await updateView(vscode.window.activeTextEditor);
         }
     }
 }
