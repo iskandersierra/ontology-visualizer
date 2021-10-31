@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs/promises";
 import { ILogger } from "../business/ILogger";
+import { SummarizeOntologyMessage } from "./summary-models";
 
 const OPEN_ONTOLOGY_SUMMARY_COMMAND_KEY = 'ontology-visualizer.ontologySummary';
 
@@ -16,39 +17,68 @@ class OntologySummaryView {
 
     public async show() {
         if (!this.panel) {
-            this.panel = vscode.window.createWebviewPanel(
-                'ontology-summary',
-                'Ontology Summary',
-                vscode.ViewColumn.Beside,
-                {
-                    enableScripts: false,
-                    retainContextWhenHidden: false,
-                    localResourceRoots: [
-                        vscode.Uri.joinPath(this.context.extensionUri, 'src/summary-app')
-                    ]
-                }
-            );
+            this.panel = this.createPanel();
 
-            this.panel.onDidDispose(() => {
-                this.logger.log(`Disposing ${this.subscriptions.length} subscriptions`);
-                this.subscriptions.forEach(subscription => subscription.dispose());
-                this.subscriptions = [];
-                this.panel = undefined;
-            }, null, this.subscriptions);
+            await this.updateView();
+            await this.refreshView(vscode.window.activeTextEditor);
+            vscode.window.onDidChangeActiveTextEditor(
+                this.refreshView, this, this.subscriptions);
+        } else {
+            this.panel.reveal(vscode.ViewColumn.Beside);
+        }
+    }
 
-            const updateView = async (editor: vscode.TextEditor | undefined) => {
-                const uri = editor?.document?.uri;
-                if (this.panel && uri) {
-                    const indexHtmlPath = path.join(this.context.extensionPath, 'src/summary-app/index.html');
-                    const indexHtmlContent = await fs.readFile(indexHtmlPath, 'utf8')
-                    // const message = `<h1>You are looking at ` + uri?.toString() + '</h1>\n<pre>' + editor.document.getText() + '</pre>';
-                    // this.logger.log(message);
-                    this.panel!.webview.html = indexHtmlContent;
-                }
+    private createPanel() {
+        const panel = vscode.window.createWebviewPanel(
+            'ontology-summary',
+            'Ontology Summary',
+            vscode.ViewColumn.Beside,
+            {
+                enableScripts: true,
+                retainContextWhenHidden: false,
+                localResourceRoots: [
+                    vscode.Uri.joinPath(this.context.extensionUri, 'summary-out')
+                ]
+            }
+        );
+
+
+        panel.onDidDispose(() => {
+            this.subscriptions.forEach(subscription => subscription.dispose());
+            this.subscriptions = [];
+            this.panel = undefined;
+        }, null, this.subscriptions);
+
+        return panel;
+    }
+
+    private async getWebviewContent() {
+        const reactAppPath = path.join(this.context.extensionPath, 'summary-out/summary-out.js');
+        const reactAppUri = vscode.Uri.file(reactAppPath).with({ scheme: 'vscode-resource' });
+        
+        const indexHtmlPath = path.join(this.context.extensionPath, 'summary-app/index.html');
+        let indexHtmlContent = await fs.readFile(indexHtmlPath, 'utf8');
+        indexHtmlContent = indexHtmlContent.replace(
+            '${reactAppUri}', 
+            reactAppUri.toString());
+
+        return indexHtmlContent;
+    }
+
+    private async updateView() {
+        if (this.panel) {
+            this.panel!.webview.html = await this.getWebviewContent();
+        }
+    }
+
+    private async refreshView(editor: vscode.TextEditor | undefined) {
+        if (this.panel && editor) {
+            // TODO: convert if needed to n3 format
+            var message: SummarizeOntologyMessage = {
+                action: 'summarize-ontology',
+                ontologyContent: editor.document.getText()
             };
-
-            this.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateView));
-            await updateView(vscode.window.activeTextEditor);
+            this.panel.webview.postMessage(message);
         }
     }
 }

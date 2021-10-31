@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "es6",
+        "outDir": "summary-out",
+        "lib": [
+            "dom",
+            "es6"
+        ],
+        "jsx": "react",
+        "sourceMap": true,
+        "rootDir": "..",
+        "noUnusedLocals": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "experimentalDecorators": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
