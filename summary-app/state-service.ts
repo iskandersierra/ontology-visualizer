@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable, switchMap, filter } from "rxjs";
-import { Parser, Quad, Prefixes, DataFactory, Quad_Graph, NamedNode } from "n3";
+import { Parser, Quad, Prefixes, DataFactory, Quad_Graph, Quad_Subject, Quad_Object, NamedNode } from "n3";
 
 const { namedNode } = DataFactory;
 
@@ -20,10 +20,18 @@ export interface IOntologyGraphSummary {
     graph: Quad_Graph;
     counters: IOntologyCounters;
     types: IOntologyTypeSummary[];
+    typeList: NamedNode[];
 }
 
 export interface IOntologyTypeSummary {
     type: NamedNode | undefined;
+    subjects: IOntologySubjectSummary[];
+    subjectList: NamedNode[];
+}
+
+export interface IOntologySubjectSummary {
+    subject: NamedNode;
+    quads: Quad[];
 }
 
 export interface IOntologySummary {
@@ -35,7 +43,7 @@ export interface IOntologySummary {
 
 const isA = namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
-function groupBy<T, K>(
+export function groupBy<T, K>(
     arr: T[],
     getKey: (item: T) => K,
     areEqual: (a: K, b: K) => boolean): ({ key: K, values: T[] })[] {
@@ -132,20 +140,57 @@ export class StateService {
             const graph = group.key;
             const counters = this.createCounters(group.values);
             const types = this.createTypes(group.values);
-            return { graph, counters, types };
+            const typeList = types.map(type => type.type).filter(t => !!t);
+            return { graph, counters, types, typeList };
         });
     }
 
     private createTypes(quads: Quad[]): IOntologyTypeSummary[] {
-        const groups = groupBy(
-            quads,
-            quad => quad.predicate.equals(isA) && quad.object.termType === 'NamedNode' ? quad.object : undefined,
+        const mappings = this.createTypesMappings(quads);
+
+        const typeGroups = groupBy(
+            mappings,
+            quad => quad.type,
             (a, b) => a === undefined && b === undefined || a !== undefined && b !== undefined && a.equals(b));
 
-        return groups.map(group => {
-            const type = group.key;
-            return { type };
+        return typeGroups
+            .map(group => {
+                const type = group.key;
+                const subjects = group.values.map(({ subject, quads }) => ({ subject, quads }));
+                const subjectList = subjects.map(subject => subject.subject);
+                return { type, subjects, subjectList };
+            })
+            .sort((a, b) =>
+                a.type === undefined ? 1 
+                    : b.type === undefined ? -1 
+                    : a.type.value.localeCompare(b.type.value));
+    }
+
+    private createTypesMappings(quads: Quad[]) {
+        const groups: ({ subject: NamedNode, type: NamedNode | undefined, quads: Quad[] })[] = [];
+
+        quads.forEach(quad => {
+            const existing = groups.find(g => g.subject.equals(quad.subject));
+            if (quad.predicate.equals(isA) && quad.object.termType === 'NamedNode') {
+                if (existing) {
+                    if (existing.type) {
+                        existing.quads.push(quad);
+                    } else {
+                        existing.type = quad.object;
+                    }
+                } else {
+                    groups.push({ subject: quad.subject as NamedNode, type: quad.object, quads: [] });
+                }
+            } else {
+                if (existing) {
+                    existing.quads.push(quad);
+                } else {
+                    groups.push({ subject: quad.subject as NamedNode, type: undefined, quads: [quad] });
+                }
+            }
         });
+
+        return groups;
     }
 
     private readContent(content: string): Promise<[Quad[], Prefixes]> {

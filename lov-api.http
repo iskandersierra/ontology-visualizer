@@ -1,0 +1,10 @@
+GET https://lov.linkeddata.es/dataset/lov/api/v2/term/search?q=Person&type=class
+
+### 
+
+GET https://lov.linkeddata.es/dataset/lov/api/v2/vocabulary/search?q=Person&lang=English
+
+###
+
+GET https://vocab.org/vann/
+Accept: text/turtle;q=0.9,application/rdf+xml;q=0.8,application/xhtml+xml;q=0.7,application/xml;q=0.6,*/*;q=0.5
